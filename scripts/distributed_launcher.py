@@ -132,14 +132,14 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
-    username = "root"
-    password = "password"
+    username = "ezpcuser"
+    password = "Ezpcuser@123"
     hostnames = [
-        "example1.server.com",
-        "example2.server.com",
-        "example3.server.com",
+        "10.11.0.4",
+        "10.11.0.5",
+        "10.11.0.6",
     ]
-    master_ip_address = "1.1.1.1"
+    master_ip_address = "10.11.0.4"
 
     client_dict = {}
     for hostname in hostnames:

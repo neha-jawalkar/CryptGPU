@@ -249,7 +249,7 @@ def train_all():
         model, input_size, num_classes = select_model(dataset, network)
         if comm.get().get_rank() == 0:
             print(f"Training on {dataset} dataset with {network} network")
-        training(model, input_size, bs, num_classes, device="cuda")
+        training(model, input_size, bs, num_classes, device="cpu") # cuda 
 
 
 def inference_all():
