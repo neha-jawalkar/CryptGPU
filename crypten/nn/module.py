@@ -569,7 +569,6 @@ class Graph(Container):
         self._graph[name] = input_names
 
     def forward(self, input):
-
         # keep track of all values that have been computed:
         values = {self.input_name: input}
         computed = {key: False for key in self._graph.keys()}

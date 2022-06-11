@@ -5,6 +5,25 @@ import torchvision
 import torchvision.models as models
 
 
+# class DummyNet(nn.Module):
+#     def __init__(self):
+#         super(DummyNet, self).__init__()
+#         self.features = nn.Sequential(
+#             nn.Conv2d(1, 20, kernel_size=5),
+#             nn.ReLU()
+#         )
+#         self.classifier = nn.Sequential(
+#             nn.Flatten(),
+#             nn.Linear(500, 10)
+#         )
+
+#     def forward(self, x):
+#         x = self.features(x)
+#         x = self.classifier(x)
+#         return x
+
+
+
 class LeNet(nn.Module):
     def __init__(self):
         super(LeNet, self).__init__()

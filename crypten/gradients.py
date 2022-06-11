@@ -39,11 +39,18 @@ def register_function(name):
 def timer_conv(func):
     """Print the runtime of the decorated function"""
     def wrapper_timer(*args, **kwargs):
+        comm.get().cur_comm_time = 0
+        comm.get().cur_comm_rounds = 0
+        comm.get().cur_comm_bytes = 0
         start_time = time.perf_counter()    # 1
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
         run_time = end_time - start_time    # 3
         comm.get().time_conv += run_time
+        comm.get().comm_time_conv += comm.get().cur_comm_time
+        comm.get().comm_rounds_conv += comm.get().cur_comm_rounds
+        comm.get().comm_bytes_conv += comm.get().cur_comm_bytes
+        print("conv comm time: ", comm.get().cur_comm_time, comm.get().comm_time_conv)
         return value
     return wrapper_timer
 
@@ -51,11 +58,18 @@ def timer_conv(func):
 def timer_pool(func):
     """Print the runtime of the decorated function"""
     def wrapper_timer(*args, **kwargs):
+        comm.get().cur_comm_time = 0
+        comm.get().cur_comm_rounds = 0
+        comm.get().cur_comm_bytes = 0
         start_time = time.perf_counter()    # 1
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
         run_time = end_time - start_time    # 3
         comm.get().time_pool += run_time
+        comm.get().comm_time_pool += comm.get().cur_comm_time
+        comm.get().comm_rounds_pool += comm.get().cur_comm_rounds
+        comm.get().comm_bytes_pool += comm.get().cur_comm_bytes
+        print("pool comm time: ", comm.get().cur_comm_time, comm.get().comm_time_pool)
         return value
     return wrapper_timer
 
@@ -63,22 +77,39 @@ def timer_pool(func):
 def timer_relu(func):
     """Print the runtime of the decorated function"""
     def wrapper_timer(*args, **kwargs):
+        print("&&&&&&&&&&&&&&&& relu start", func.__name__)
+        comm.get().cur_comm_time = 0
+        comm.get().cur_comm_rounds = 0
+        comm.get().cur_comm_bytes = 0
+        timestamp = comm.get().comm_time
         start_time = time.perf_counter()    # 1
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
         run_time = end_time - start_time    # 3
         comm.get().time_relu += run_time
+        comm.get().comm_time_relu += comm.get().cur_comm_time
+        comm.get().comm_rounds_relu += comm.get().cur_comm_rounds
+        comm.get().comm_bytes_relu += comm.get().cur_comm_bytes
+        print("**********", comm.get().comm_time - timestamp, comm.get().cur_comm_time)
+        print("relu comm time: ", func, comm.get().cur_comm_time, comm.get().comm_time_relu, comm.get().cur_comm_rounds, comm.get().cur_comm_bytes/(1024))
         return value
     return wrapper_timer
 
 def timer_matmul(func):
     """Print the runtime of the decorated function"""
     def wrapper_timer(*args, **kwargs):
+        comm.get().cur_comm_time = 0
+        comm.get().cur_comm_rounds = 0
+        comm.get().cur_comm_bytes = 0
         start_time = time.perf_counter()    # 1
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
         run_time = end_time - start_time    # 3
         comm.get().time_matmul += run_time
+        comm.get().comm_time_matmul += comm.get().cur_comm_time
+        comm.get().comm_rounds_matmul += comm.get().cur_comm_rounds
+        comm.get().comm_bytes_matmul += comm.get().cur_comm_bytes
+        print("matmul comm time: ", comm.get().cur_comm_time, comm.get().comm_time_matmul, comm.get().cur_comm_rounds, comm.get().cur_comm_bytes/(1024))
         return value
     return wrapper_timer
 
@@ -86,11 +117,20 @@ def timer_matmul(func):
 def timer_softmax(func):
     """Print the runtime of the decorated function"""
     def wrapper_timer(*args, **kwargs):
+        comm.get().cur_comm_time = 0
+        comm.get().cur_comm_rounds = 0
+        comm.get().cur_comm_bytes = 0
+        timestamp = comm.get().comm_time
         start_time = time.perf_counter()    # 1
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
         run_time = end_time - start_time    # 3
         comm.get().time_softmax += run_time
+        print("**********", comm.get().comm_time - timestamp, comm.get().cur_comm_time)
+        comm.get().comm_time_softmax += comm.get().cur_comm_time
+        comm.get().comm_rounds_softmax += comm.get().cur_comm_rounds
+        comm.get().comm_bytes_softmax += comm.get().cur_comm_bytes
+        print("softmax comm time: ", comm.get().cur_comm_time, comm.get().comm_time_softmax, comm.get().cur_comm_rounds, comm.get().cur_comm_bytes/(1024))
         return value
     return wrapper_timer
 

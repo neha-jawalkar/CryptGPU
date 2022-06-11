@@ -423,10 +423,11 @@ class MPCTensor(CrypTensor):
     def relu(self):
         """Compute a Rectified Linear function on the input tensor."""
         assert comm.get_world_size() == 3
-        return MPCTensor.from_shares(
+        result = MPCTensor.from_shares(
                 resharing.mixed_mul(self._tensor, get_msb(self._tensor)^1), 
                 src=comm.get().get_rank()
         )
+        return result
 
     @mode(Ptype.arithmetic)
     def max(self, dim=None, keepdim=False, one_hot=True):

@@ -89,9 +89,14 @@ def training(model, input_size, batch_size, num_classes, device="cuda"):
     input = crypten.cryptensor(input, src=0).to(device)
 
     total_time = 0
-    comm_time = 0
+    comm_time, comm_time_conv, comm_time_relu, comm_time_pool, comm_time_softmax, comm_time_matmul = 0, 0, 0, 0, 0, 0
+    comm_rounds, comm_rounds_conv, comm_rounds_relu, comm_rounds_pool, comm_rounds_softmax, comm_rounds_matmul = [0]*6 
+    comm_bytes_conv, comm_bytes_relu, comm_bytes_pool, comm_bytes_softmax, comm_bytes_matmul = [0]*5 
+    
     conv_time, pool_time, relu_time, matmul_time, softmax_time = 0, 0, 0, 0, 0
-    for i in range(6):
+    num_iterations = 2
+    assert num_iterations > 1
+    for i in range(num_iterations):
         comm.get().reset_communication_stats()
         tic = time.perf_counter()
 
@@ -102,7 +107,7 @@ def training(model, input_size, batch_size, num_classes, device="cuda"):
         model.update_parameters(learning_rate=0.1)
 
         toc = time.perf_counter()
-
+        print("Iteration ", i)
         if i != 0:
             total_time += toc - tic
             comm_time += comm.get().comm_time
@@ -111,6 +116,26 @@ def training(model, input_size, batch_size, num_classes, device="cuda"):
             pool_time += comm.get().time_pool
             matmul_time += comm.get().time_matmul
             softmax_time += comm.get().time_softmax
+            if comm.get().get_rank() == 0:
+                comm_time_conv += comm.get().comm_time_conv
+                comm_time_relu += comm.get().comm_time_relu
+                comm_time_pool += comm.get().comm_time_pool
+                comm_time_softmax += comm.get().comm_time_softmax
+                comm_time_matmul += comm.get().comm_time_matmul
+
+                comm_rounds += comm.get().comm_rounds
+                comm_rounds_conv += comm.get().comm_rounds_conv
+                comm_rounds_relu += comm.get().comm_rounds_relu
+                comm_rounds_pool += comm.get().comm_rounds_pool
+                comm_rounds_softmax += comm.get().comm_rounds_softmax
+                comm_rounds_matmul += comm.get().comm_rounds_matmul
+                
+                comm_bytes_conv += comm.get().comm_bytes_conv
+                comm_bytes_relu += comm.get().comm_bytes_relu
+                comm_bytes_pool += comm.get().comm_bytes_pool
+                comm_bytes_softmax += comm.get().comm_bytes_softmax
+                comm_bytes_matmul += comm.get().comm_bytes_matmul
+                
 
             # if comm.get().get_rank() == 0:
             #     print(f"Iteration {i} runtime: {toc - tic}")
@@ -120,13 +145,31 @@ def training(model, input_size, batch_size, num_classes, device="cuda"):
     if comm.get().get_rank() == 0:
         print("----------- Statistics ----------------")
         print(f"Total Communication: {comm.get().total_comm_bytes}")
-        print(f"Avg Runtime: {total_time / 5}")
-        print(f"Avg Comm: {comm_time / 5}")
-        print(f"Avg Linear: {(conv_time + matmul_time)/ 5}")
-        print(f"Avg ReLU: {relu_time / 5}")
-        print(f"Avg Pool: {pool_time / 5}")
-        print(f"Avg Softmax: {softmax_time / 5}")
+        print(f"Avg Runtime: {total_time / (num_iterations-1)}")
+        print(f"Avg Comm: {comm_time / (num_iterations-1)}")
+        print(f"Avg Linear: {(conv_time + matmul_time)/ (num_iterations-1)}")
+        print(f"Avg ReLU: {relu_time / (num_iterations-1)}")
+        print(f"Avg Pool: {pool_time / (num_iterations-1)}")
+        print(f"Avg Softmax: {softmax_time / (num_iterations-1)}")
+        
+        print(f"Comm time Conv: {comm_time_conv / (num_iterations-1)}")
+        print(f"Comm time Matmul: {comm_time_matmul / (num_iterations-1)}")
+        print(f"Comm time ReLU: {comm_time_relu / (num_iterations-1)}")
+        print(f"Comm time Pool: {comm_time_pool / (num_iterations-1)}")
+        print(f"Comm time Softmax: {comm_time_softmax / (num_iterations-1)}")
 
+        print(f"Comm rounds: {comm_rounds / (num_iterations-1)}")
+        print(f"Comm rounds Conv: {comm_rounds_conv / (num_iterations-1)}")
+        print(f"Comm rounds Matmul: {comm_rounds_matmul / (num_iterations-1)}")
+        print(f"Comm rounds ReLU: {comm_rounds_relu / (num_iterations-1)}")
+        print(f"Comm rounds Pool: {comm_rounds_pool / (num_iterations-1)}")
+        print(f"Comm rounds Softmax: {comm_rounds_softmax / (num_iterations-1)}")
+
+        print(f"Comm bytes Conv: {comm_bytes_conv / (num_iterations-1)}")
+        print(f"Comm bytes Matmul: {comm_bytes_matmul / (num_iterations-1)}")
+        print(f"Comm bytes ReLU: {comm_bytes_relu / (num_iterations-1)}")
+        print(f"Comm bytes Pool: {comm_bytes_pool / (num_iterations-1)}")
+        print(f"Comm bytes Softmax: {comm_bytes_softmax / (num_iterations-1)}")
 
 
 def inference_plaintext(model, input_size, device="cuda"):
@@ -195,7 +238,7 @@ def training_plaintext(model, input_size, batch_size, num_classes, device="cuda"
         print(f"Avg Runtime: {total_time / 100}")
 
 
-def select_model(dataset, network):
+def select_model(dataset, network):        
     if dataset == "mnist":
         input_size = (1,28,28)
         num_classes = 10
@@ -204,6 +247,8 @@ def select_model(dataset, network):
     elif dataset == "cifar10":
         input_size = (3,32,32)
         num_classes = 10
+        if network == "dummy":
+            model = DummyNet()
         if network == "alexnet":
             model = AlexNet(num_classes=10)
         elif network == "vgg16":
@@ -239,17 +284,17 @@ def select_model(dataset, network):
 
 def train_all():
     train_config = [
-        ["mnist", "lenet", 128],
-        ["cifar10", "alexnet", 128],
+        # ["mnist", "lenet", 128],
+        # ["cifar10", "alexnet", 128],
         ["cifar10", "vgg16", 32],
-        ["tinyin", "alexnet", 128],
-        ["tinyin", "vgg16", 8],
+        # ["tinyin", "alexnet", 128],
+        # ["tinyin", "vgg16", 8],
     ]
     for dataset, network, bs in train_config:
         model, input_size, num_classes = select_model(dataset, network)
         if comm.get().get_rank() == 0:
             print(f"Training on {dataset} dataset with {network} network")
-        training(model, input_size, bs, num_classes, device="cpu") # cuda 
+        training(model, input_size, bs, num_classes, device="cuda") # cpu or cuda 
 
 
 def inference_all():

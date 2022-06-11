@@ -137,6 +137,30 @@ class Communicator:
         self.time_relu = 0
         self.time_matmul = 0
         self.time_softmax = 0
+        self.cur_comm_time = 0
+
+        self.comm_time_conv = 0
+        self.comm_time_relu = 0
+        self.comm_time_pool = 0
+        self.comm_time_matmul = 0
+        self.comm_time_softmax = 0
+
+        self.cur_comm_bytes = 0
+        self.cur_comm_rounds = 0
+
+        self.comm_rounds_conv = 0
+        self.comm_rounds_matmul = 0
+        self.comm_rounds_relu = 0
+        self.comm_rounds_pool = 0
+        self.comm_rounds_softmax = 0
+
+        self.comm_bytes_conv = 0
+        self.comm_bytes_matmul = 0
+        self.comm_bytes_relu = 0
+        self.comm_bytes_pool = 0
+        self.comm_bytes_softmax = 0
+
+
 
     def print_communication_stats(self):
         """Prints communication statistics."""
@@ -148,10 +172,14 @@ class Communicator:
     def _log_communication(self, nelement):
         """Updates log of communication statistics."""
         self.comm_rounds += 1
+        self.cur_comm_rounds += 1
         self.comm_bytes += nelement * self.BYTES_PER_ELEMENT
+        self.cur_comm_bytes += nelement * self.BYTES_PER_ELEMENT
 
     def _log_communication_time(self, comm_time):
         self.comm_time += comm_time
+        # self.cur_comm_time += comm_time
+        # print("comm_time:", comm_time)
 
     def get_generator(self, idx, device=None):
         """
