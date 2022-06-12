@@ -89,9 +89,14 @@ def training(model, input_size, batch_size, num_classes, device="cuda"):
     input = crypten.cryptensor(input, src=0).to(device)
 
     total_time = 0
-    comm_time = 0
+    comm_rounds_relu, comm_rounds_conv, comm_rounds_matmul, comm_rounds_pool, comm_rounds_softmax = [0]*5
+    comm_time, comm_time_relu, comm_time_conv, comm_time_matmul, comm_time_pool, comm_time_softmax = [0]*6
     conv_time, pool_time, relu_time, matmul_time, softmax_time = 0, 0, 0, 0, 0
-    for i in range(6):
+    num_iterations = 6
+    assert num_iterations > 1
+    for i in range(num_iterations):
+        if comm.get().get_rank() == 0:
+            print("Iteration", i)
         comm.get().reset_communication_stats()
         tic = time.perf_counter()
 
@@ -111,6 +116,18 @@ def training(model, input_size, batch_size, num_classes, device="cuda"):
             pool_time += comm.get().time_pool
             matmul_time += comm.get().time_matmul
             softmax_time += comm.get().time_softmax
+            if comm.get().get_rank() == 0:
+                comm_time_relu += comm.get().comm_time_relu
+                comm_time_conv += comm.get().comm_time_conv
+                comm_time_matmul += comm.get().comm_time_matmul
+                comm_time_pool += comm.get().comm_time_pool
+                comm_time_softmax += comm.get().comm_time_softmax
+
+                comm_rounds_relu += comm.get().comm_rounds_relu
+                comm_rounds_conv += comm.get().comm_rounds_conv
+                comm_rounds_matmul += comm.get().comm_rounds_matmul
+                comm_rounds_pool += comm.get().comm_rounds_pool
+                comm_rounds_softmax += comm.get().comm_rounds_softmax
 
             # if comm.get().get_rank() == 0:
             #     print(f"Iteration {i} runtime: {toc - tic}")
@@ -120,12 +137,24 @@ def training(model, input_size, batch_size, num_classes, device="cuda"):
     if comm.get().get_rank() == 0:
         print("----------- Statistics ----------------")
         print(f"Total Communication: {comm.get().total_comm_bytes}")
-        print(f"Avg Runtime: {total_time / 5}")
-        print(f"Avg Comm: {comm_time / 5}")
-        print(f"Avg Linear: {(conv_time + matmul_time)/ 5}")
-        print(f"Avg ReLU: {relu_time / 5}")
-        print(f"Avg Pool: {pool_time / 5}")
-        print(f"Avg Softmax: {softmax_time / 5}")
+        print(f"Avg Runtime: {total_time / (num_iterations-1)}")
+        print(f"Avg Comm: {comm_time / (num_iterations-1)}")
+        print(f"Avg Linear: {(conv_time + matmul_time)/ (num_iterations-1)}")
+        print(f"Avg ReLU: {relu_time / (num_iterations-1)}")
+        print(f"Avg Pool: {pool_time / (num_iterations-1)}")
+        print(f"Avg Softmax: {softmax_time / (num_iterations-1)}")
+        
+        print(f"Avg Comm time ReLU: {comm_time_relu / (num_iterations-1)}")
+        print(f"Avg Comm time Conv: {comm_time_conv / (num_iterations-1)}")
+        print(f"Avg Comm time Softmax: {comm_time_softmax / (num_iterations-1)}")
+        print(f"Avg Comm time Matmul: {comm_time_matmul / (num_iterations-1)}")
+        print(f"Avg Comm time Pool: {comm_time_pool / (num_iterations-1)}")
+        
+        print(f"Comm rounds ReLU: {comm_rounds_relu / (num_iterations-1)}")
+        print(f"Comm rounds Conv: {comm_rounds_conv / (num_iterations-1)}")
+        print(f"Comm rounds Softmax: {comm_rounds_softmax / (num_iterations-1)}")
+        print(f"Comm rounds Matmul: {comm_rounds_matmul / (num_iterations-1)}")
+        print(f"Comm rounds Pool: {comm_rounds_pool / (num_iterations-1)}")
 
 
 
@@ -240,16 +269,16 @@ def select_model(dataset, network):
 def train_all():
     train_config = [
         ["mnist", "lenet", 128],
-        ["cifar10", "alexnet", 128],
-        ["cifar10", "vgg16", 32],
-        ["tinyin", "alexnet", 128],
-        ["tinyin", "vgg16", 8],
+        # ["cifar10", "alexnet", 128],
+        # ["cifar10", "vgg16", 32],
+        # ["tinyin", "alexnet", 128],
+        # ["tinyin", "vgg16", 8],
     ]
     for dataset, network, bs in train_config:
         model, input_size, num_classes = select_model(dataset, network)
         if comm.get().get_rank() == 0:
             print(f"Training on {dataset} dataset with {network} network")
-        training(model, input_size, bs, num_classes, device="cpu") # cuda 
+        training(model, input_size, bs, num_classes, device="cuda") # cuda or cpu
 
 
 def inference_all():

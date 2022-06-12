@@ -132,11 +132,25 @@ class Communicator:
         self.comm_rounds = 0
         self.comm_bytes = 0
         self.comm_time = 0
+
         self.time_conv = 0
         self.time_pool = 0
         self.time_relu = 0
         self.time_matmul = 0
         self.time_softmax = 0
+
+        self.comm_time_relu = 0
+        self.comm_time_conv = 0
+        self.comm_time_pool = 0
+        self.comm_time_matmul = 0
+        self.comm_time_softmax = 0
+
+        self.comm_rounds_relu = 0
+        self.comm_rounds_conv = 0
+        self.comm_rounds_pool = 0
+        self.comm_rounds_matmul = 0
+        self.comm_rounds_softmax = 0
+        
 
     def print_communication_stats(self):
         """Prints communication statistics."""
