@@ -17,6 +17,10 @@ import time
 # registry that maps function names to AutogradFunctions:
 FUNCTION_REGISTRY = {}
 
+def pprint(func_name, comm_time, comm_bytes, comm_rounds):
+    # pass
+    print(f"{func_name} communicated {comm_bytes/float(1024)**2} MB in {comm_rounds} rounds in {comm_time} seconds.")
+
 
 def register_function(name):
     """Decorator that registers a new autograd function."""
@@ -41,16 +45,29 @@ def timer_conv(func):
     def wrapper_timer(*args, **kwargs):
         comm_start_time = comm.get().comm_time
         comm_rounds_start = comm.get().comm_rounds
+        comm_bytes_start = comm.get().comm_bytes
 
         start_time = time.perf_counter()    # 1
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
         run_time = end_time - start_time    # 3
+        
         comm.get().time_conv += run_time
+        
         comm_end_time = comm.get().comm_time
-        comm.get().comm_time_conv += (comm_end_time - comm_start_time)
+        comm_time = (comm_end_time - comm_start_time)
+        comm.get().comm_time_conv += comm_time
+        
         comm_rounds_end = comm.get().comm_rounds
-        comm.get().comm_rounds_conv += (comm_rounds_end - comm_rounds_start)
+        comm_rounds = (comm_rounds_end - comm_rounds_start)
+        comm.get().comm_rounds_conv += comm_rounds
+        
+        comm_bytes_end = comm.get().comm_bytes
+        comm_bytes = (comm_bytes_end - comm_bytes_start)
+        comm.get().comm_bytes_conv += comm_bytes
+
+        # pprint(f"conv {func.__name__}", comm_time, comm_bytes, comm_rounds)
+
         return value
     return wrapper_timer
 
@@ -60,17 +77,30 @@ def timer_pool(func):
     def wrapper_timer(*args, **kwargs):
         comm_start_time = comm.get().comm_time
         comm_rounds_start = comm.get().comm_rounds
+        comm_bytes_start = comm.get().comm_bytes
 
         start_time = time.perf_counter()    # 1
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
         
         run_time = end_time - start_time    # 3
+        
         comm.get().time_pool += run_time
+        
         comm_end_time = comm.get().comm_time
-        comm.get().comm_time_pool += (comm_end_time - comm_start_time)
+        comm_time = (comm_end_time - comm_start_time)
+        comm.get().comm_time_pool += comm_time
+        
         comm_rounds_end = comm.get().comm_rounds
-        comm.get().comm_rounds_pool += (comm_rounds_end - comm_rounds_start)
+        comm_rounds = (comm_rounds_end - comm_rounds_start)
+        comm.get().comm_rounds_pool += comm_rounds
+
+        comm_bytes_end = comm.get().comm_bytes
+        comm_bytes = (comm_bytes_end - comm_bytes_start)
+        comm.get().comm_bytes_pool += comm_bytes
+
+        # pprint(f"pool {func.__name__}", comm_time, comm_bytes, comm_rounds)
+
         return value
     return wrapper_timer
 
@@ -80,18 +110,29 @@ def timer_relu(func):
     def wrapper_timer(*args, **kwargs):
         comm_start_time = comm.get().comm_time
         comm_rounds_start = comm.get().comm_rounds
+        comm_bytes_start = comm.get().comm_bytes
+        
         start_time = time.perf_counter()    # 1
-
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
+        
         run_time = end_time - start_time    # 3
         comm.get().time_relu += run_time
+        
         comm_end_time = comm.get().comm_time
-        comm.get().comm_time_relu += (comm_end_time - comm_start_time)
+        comm_time = (comm_end_time - comm_start_time)
+        comm.get().comm_time_relu += comm_time
+        
         comm_rounds_end = comm.get().comm_rounds
         comm_rounds = (comm_rounds_end - comm_rounds_start)
         comm.get().comm_rounds_relu += comm_rounds
-        print(f"Rounds for relu {func.__name__}: {comm_rounds}")
+        
+        comm_bytes_end = comm.get().comm_bytes
+        comm_bytes = (comm_bytes_end - comm_bytes_start)
+        comm.get().comm_bytes_relu += comm_bytes
+
+        pprint(f"relu {func.__name__}", comm_time, comm_bytes, comm_rounds)
+        
         return value
     return wrapper_timer
 
@@ -100,15 +141,29 @@ def timer_matmul(func):
     def wrapper_timer(*args, **kwargs):
         comm_start_time = comm.get().comm_time
         comm_rounds_start = comm.get().comm_rounds
+        comm_bytes_start = comm.get().comm_bytes
+        
         start_time = time.perf_counter()    # 1
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
+        
         run_time = end_time - start_time    # 3
         comm.get().time_matmul += run_time
+        
         comm_end_time = comm.get().comm_time
-        comm.get().comm_time_matmul += (comm_end_time - comm_start_time)
+        comm_time = (comm_end_time - comm_start_time)
+        comm.get().comm_time_matmul += comm_time
+        
         comm_rounds_end = comm.get().comm_rounds
-        comm.get().comm_rounds_matmul += (comm_rounds_end - comm_rounds_start)
+        comm_rounds = (comm_rounds_end - comm_rounds_start)
+        comm.get().comm_rounds_matmul += comm_rounds
+        
+        comm_bytes_end = comm.get().comm_bytes
+        comm_bytes = (comm_bytes_end - comm_bytes_start)
+        comm.get().comm_bytes_matmul += comm_bytes
+
+        # pprint(f"matmul {func.__name__}", comm_time, comm_bytes, comm_rounds)
+        
         return value
     return wrapper_timer
 
@@ -118,15 +173,30 @@ def timer_softmax(func):
     def wrapper_timer(*args, **kwargs):
         comm_start_time = comm.get().comm_time
         comm_rounds_start = comm.get().comm_rounds
+        comm_bytes_start = comm.get().comm_bytes
+        
         start_time = time.perf_counter()    # 1
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
+        
         run_time = end_time - start_time    # 3
         comm.get().time_softmax += run_time
+        
         comm_end_time = comm.get().comm_time
-        comm.get().comm_time_softmax += (comm_end_time - comm_start_time)
+        comm_time = (comm_end_time - comm_start_time)
+        comm.get().comm_time_softmax += comm_time
+        
         comm_rounds_end = comm.get().comm_rounds
-        comm.get().comm_rounds_softmax += (comm_rounds_end - comm_rounds_start)
+        comm_rounds = (comm_rounds_end - comm_rounds_start)
+        comm.get().comm_rounds_softmax += comm_rounds
+        # print(f"Rounds for softmax {func.__name__}: {comm_rounds}")
+        
+        comm_bytes_end = comm.get().comm_bytes
+        comm_bytes = (comm_bytes_end - comm_bytes_start)
+        comm.get().comm_bytes_softmax += comm_bytes
+        
+        # pprint(f"softmax {func.__name__}", comm_time, comm_bytes, comm_rounds)
+        
         return value
     return wrapper_timer
 

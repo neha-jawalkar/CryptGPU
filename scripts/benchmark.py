@@ -10,6 +10,7 @@ import crypten.communicator as comm
 from crypten.mpc import MPCTensor
 from crypten.mpc.ptype import ptype as Ptype
 
+
 import torchvision
 import torchvision.models as models
 import torch.autograd.profiler as profiler
@@ -67,6 +68,9 @@ def inference(model, input_size, batch_size=1, device="cuda"):
         print(f"Avg ReLU: {relu_time / 5}")
         print(f"Avg Pool: {pool_time / 5}")
 
+def to_mb(num_bytes):
+    return f"{num_bytes / (float(1024)**2)} MB"
+
 
 def training(model, input_size, batch_size, num_classes, device="cuda"):
     comm.get().set_verbosity(True)
@@ -89,7 +93,6 @@ def training(model, input_size, batch_size, num_classes, device="cuda"):
     input = crypten.cryptensor(input, src=0).to(device)
 
     total_time = 0
-    comm_rounds_relu, comm_rounds_conv, comm_rounds_matmul, comm_rounds_pool, comm_rounds_softmax = [0]*5
     comm_time, comm_time_relu, comm_time_conv, comm_time_matmul, comm_time_pool, comm_time_softmax = [0]*6
     conv_time, pool_time, relu_time, matmul_time, softmax_time = 0, 0, 0, 0, 0
     num_iterations = 6
@@ -122,13 +125,6 @@ def training(model, input_size, batch_size, num_classes, device="cuda"):
                 comm_time_matmul += comm.get().comm_time_matmul
                 comm_time_pool += comm.get().comm_time_pool
                 comm_time_softmax += comm.get().comm_time_softmax
-
-                comm_rounds_relu += comm.get().comm_rounds_relu
-                comm_rounds_conv += comm.get().comm_rounds_conv
-                comm_rounds_matmul += comm.get().comm_rounds_matmul
-                comm_rounds_pool += comm.get().comm_rounds_pool
-                comm_rounds_softmax += comm.get().comm_rounds_softmax
-
             # if comm.get().get_rank() == 0:
             #     print(f"Iteration {i} runtime: {toc - tic}")
 
@@ -136,25 +132,39 @@ def training(model, input_size, batch_size, num_classes, device="cuda"):
 
     if comm.get().get_rank() == 0:
         print("----------- Statistics ----------------")
-        print(f"Total Communication: {comm.get().total_comm_bytes}")
-        print(f"Avg Runtime: {total_time / (num_iterations-1)}")
-        print(f"Avg Comm: {comm_time / (num_iterations-1)}")
-        print(f"Avg Linear: {(conv_time + matmul_time)/ (num_iterations-1)}")
-        print(f"Avg ReLU: {relu_time / (num_iterations-1)}")
-        print(f"Avg Pool: {pool_time / (num_iterations-1)}")
-        print(f"Avg Softmax: {softmax_time / (num_iterations-1)}")
+        print(f"Avg Runtime: {total_time / (num_iterations-1)}\n")
+
+        print(f"Avg Runtime Conv: {conv_time/ (num_iterations-1)}")
+        print(f"Avg Runtime Matmul: {matmul_time/ (num_iterations-1)}")
+        print(f"Avg Runtime Pool: {pool_time / (num_iterations-1)}")
+        print(f"Avg Runtime ReLU: {relu_time / (num_iterations-1)}")
+        print(f"Avg Runtime Softmax: {softmax_time / (num_iterations-1)}\n")
         
-        print(f"Avg Comm time ReLU: {comm_time_relu / (num_iterations-1)}")
+        print(f"Avg Comm: {comm_time / (num_iterations-1)}\n")
+
         print(f"Avg Comm time Conv: {comm_time_conv / (num_iterations-1)}")
-        print(f"Avg Comm time Softmax: {comm_time_softmax / (num_iterations-1)}")
         print(f"Avg Comm time Matmul: {comm_time_matmul / (num_iterations-1)}")
         print(f"Avg Comm time Pool: {comm_time_pool / (num_iterations-1)}")
+        print(f"Avg Comm time ReLU: {comm_time_relu / (num_iterations-1)}")
+        print(f"Avg Comm time Softmax: {comm_time_softmax / (num_iterations-1)}\n")
         
-        print(f"Comm rounds ReLU: {comm_rounds_relu / (num_iterations-1)}")
-        print(f"Comm rounds Conv: {comm_rounds_conv / (num_iterations-1)}")
-        print(f"Comm rounds Softmax: {comm_rounds_softmax / (num_iterations-1)}")
-        print(f"Comm rounds Matmul: {comm_rounds_matmul / (num_iterations-1)}")
-        print(f"Comm rounds Pool: {comm_rounds_pool / (num_iterations-1)}")
+        print(f"Total rounds: {comm.get().comm_rounds}\n")
+
+        print(f"Comm rounds Conv: {comm.get().comm_rounds_conv}")
+        print(f"Comm rounds Matmul: {comm.get().comm_rounds_matmul}")
+        print(f"Comm rounds Pool: {comm.get().comm_rounds_pool}")
+        print(f"Comm rounds ReLU: {comm.get().comm_rounds_relu}")
+        print(f"Comm rounds Softmax: {comm.get().comm_rounds_softmax}\n")
+
+        print(f"Total Communication: {to_mb(comm.get().total_comm_bytes)}")
+        print(f"Total communication for one party: {to_mb(comm.get().comm_bytes)}\n")
+
+        print(f"Comm size Conv: {to_mb(comm.get().comm_bytes_conv)}")
+        print(f"Comm size Matmul: {to_mb(comm.get().comm_bytes_matmul)}")
+        print(f"Comm size Pool: {to_mb(comm.get().comm_bytes_pool)}")
+        print(f"Comm size ReLU: {to_mb(comm.get().comm_bytes_relu)}")
+        print(f"Comm size Softmax: {to_mb(comm.get().comm_bytes_softmax)}")
+
 
 
 
@@ -268,10 +278,10 @@ def select_model(dataset, network):
 
 def train_all():
     train_config = [
-        ["mnist", "lenet", 128],
+        # ["mnist", "lenet", 128],
         # ["cifar10", "alexnet", 128],
         # ["cifar10", "vgg16", 32],
-        # ["tinyin", "alexnet", 128],
+        ["tinyin", "alexnet", 128],
         # ["tinyin", "vgg16", 8],
     ]
     for dataset, network, bs in train_config:
@@ -349,6 +359,71 @@ def batch_inference():
         model, input_size, num_classes = select_model(dataset, network)
         inference(model, input_size, bs, device='cuda')
 
+def measure_comm_time():
+    # bytes_list = 
+    # [
+    #     33849344,
+    #     8650752,
+    #     336134144,
+    #     170131456,
+    #     47737856,
+    #     2162688,
+    #     864768,
+    #     4325376,
+    #     1729536,
+    #     4194304,
+    #     1048576,
+    #     20973568,
+    #     150994944,
+    #     75497472,
+    #     37748736,
+    #     18874368,
+    #     4718592,
+    #     294912,
+    #     1884872,
+    #     38408]
+    bytes_list = [
+        44712192,
+        20643840,
+        305127936,
+        151781376,
+        10485760,
+        2891776,
+        20971520,
+        5783552,
+        6553600,
+        1048576,
+        62921472,
+        5251072,
+        286654464,
+        88473600,
+        9437184,
+        254803968,
+        78643200,
+        8388608,
+        30157832,
+        614408
+    ]
+    num_iterations = 6
+    for num_bytes in bytes_list:
+        comm_time = 0
+        for i in range(num_iterations):
+            tensor_to_send = torch.zeros_like(torch.empty(num_bytes), dtype=torch.uint8).data
+            tensor_to_recv = torch.empty(num_bytes, dtype=torch.int8)
+            start_time = time.perf_counter()
+            if comm.get().get_rank() == 0:
+                send_req = comm.get().isend(tensor=tensor_to_send, dst=1)
+                send_req.wait()
+            elif comm.get().get_rank() == 1:
+                recv_req = comm.get().irecv(tensor=tensor_to_recv, src=0)
+                recv_req.wait()
+            end_time = time.perf_counter()
+            if i > 0:
+                comm_time += (end_time - start_time)
+        if comm.get().get_rank() == 0:
+            print(f"Time taken to send {num_bytes} bytes:", comm_time / (num_iterations - 1))
+    
+
 # A playground to test different network and dataset combinations
 def test():
     dataset = "cifar10"
@@ -366,7 +441,7 @@ def test():
 
 
 parser = argparse.ArgumentParser()
-experiments = ['test', 'train_all', 'inference_all', 'train_all_plaintext', 'inference_all_plaintext', 'batch_inference']
+experiments = ['test', 'train_all', 'inference_all', 'train_all_plaintext', 'inference_all_plaintext', 'batch_inference', 'comm_time']
 parser.add_argument(
     "--exp",
     "-e",

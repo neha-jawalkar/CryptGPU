@@ -9,6 +9,7 @@ import logging
 import os
 import pickle
 
+
 import numpy
 import torch
 import torch.distributed as dist
@@ -382,3 +383,4 @@ class DistributedCommunicator(Communicator):
             # logging.info("Conv Time: {}".format(self.time_conv))
             # logging.info("Pool Time: {}".format(self.time_pool))
             # logging.info("ReLU Time: {}".format(self.time_relu))
+

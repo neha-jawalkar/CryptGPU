@@ -29,11 +29,12 @@ def run_experiment(args):
     )
 
     # Select the benchmark experiment to run. 
-    train_all()
+    # train_all()
     # inference_all()
     # train_all_plaintext()
     # inference_all_plaintext()
     # batch_inference()
+    measure_comm_time()
 
 
 if __name__ == "__main__":
