@@ -1,0 +1,62 @@
+Connecting to ezpcuser@10.11.0.4 ...
+Connected to ezpcuser@10.11.0.4
+Connecting to ezpcuser@10.11.0.5 ...
+Connected to ezpcuser@10.11.0.5
+Connecting to ezpcuser@10.11.0.6 ...
+Connected to ezpcuser@10.11.0.6
+Running world size 3
+Uploading `benchmark.py` to 10.11.0.4...
+Uploading `launcher.py` to 10.11.0.4...
+Uploading `network.py` to 10.11.0.4...
+`benchmark.py` uploaded to 10.11.0.4.
+`network.py` uploaded to 10.11.0.4.
+`launcher.py` uploaded to 10.11.0.4.
+Uploading `launcher.py` to 10.11.0.5...
+Uploading `benchmark.py` to 10.11.0.5...
+Uploading `network.py` to 10.11.0.5...
+`launcher.py` uploaded to 10.11.0.5.
+`benchmark.py` uploaded to 10.11.0.5.
+`network.py` uploaded to 10.11.0.5.
+Uploading `launcher.py` to 10.11.0.6...
+Uploading `benchmark.py` to 10.11.0.6...
+Uploading `network.py` to 10.11.0.6...
+`launcher.py` uploaded to 10.11.0.6.
+`benchmark.py` uploaded to 10.11.0.6.
+`network.py` uploaded to 10.11.0.6.
+[10.11.0.4 STDOUT] total 44
+[10.11.0.4 STDOUT] drwxrwxr-x  2 ezpcuser ezpcuser  4096 Jun 20 10:56 .
+[10.11.0.4 STDOUT] drwxr-xr-x 22 ezpcuser ezpcuser 12288 Jun 20 10:56 ..
+[10.11.0.4 STDOUT] -rw-rw-r--  1 ezpcuser ezpcuser 14878 Jun 20 10:56 benchmark.py
+[10.11.0.4 STDOUT] -rwxrwxr-x  1 ezpcuser ezpcuser   973 Jun 20 10:56 launcher.py
+[10.11.0.4 STDOUT] -rw-rw-r--  1 ezpcuser ezpcuser  4224 Jun 20 10:56 network.py
+[10.11.0.5 STDOUT] total 44
+[10.11.0.5 STDOUT] drwxrwxr-x  2 ezpcuser ezpcuser  4096 Jun 20 10:56 .
+[10.11.0.5 STDOUT] drwxr-xr-x 24 ezpcuser ezpcuser 12288 Jun 20 10:56 ..
+[10.11.0.5 STDOUT] -rw-rw-r--  1 ezpcuser ezpcuser 14878 Jun 20 10:56 benchmark.py
+[10.11.0.5 STDOUT] -rwxrwxr-x  1 ezpcuser ezpcuser   973 Jun 20 10:56 launcher.py
+[10.11.0.5 STDOUT] -rw-rw-r--  1 ezpcuser ezpcuser  4224 Jun 20 10:56 network.py
+[10.11.0.6 STDOUT] total 44
+[10.11.0.6 STDOUT] drwxrwxr-x  2 ezpcuser ezpcuser  4096 Jun 20 10:56 .
+[10.11.0.6 STDOUT] drwxr-xr-x 18 ezpcuser ezpcuser 12288 Jun 20 10:56 ..
+[10.11.0.6 STDOUT] -rw-rw-r--  1 ezpcuser ezpcuser 14878 Jun 20 10:56 benchmark.py
+[10.11.0.6 STDOUT] -rwxrwxr-x  1 ezpcuser ezpcuser   973 Jun 20 10:56 launcher.py
+[10.11.0.6 STDOUT] -rw-rw-r--  1 ezpcuser ezpcuser  4224 Jun 20 10:56 network.py
+Run command: export WORLD_SIZE=3; export RENDEZVOUS=env://; export MASTER_ADDR=10.11.0.4; export MASTER_PORT=29500; export RANK=0; cd crypten-launcher-tmp-96ec6c0e-f087-11ec-b892-3fcd6aef0208 ; export PATH=/home/ezpcuser/anaconda3/envs/cryptgpu/bin:/usr/local/cuda-11.7/bin:/home/ezpcuser/anaconda3/envs/cryptgpu/bin:/home/ezpcuser/anaconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin;  CUDA_VISIBLE_DEVICES=0 ./launcher.py 
+Run command: export WORLD_SIZE=3; export RENDEZVOUS=env://; export MASTER_ADDR=10.11.0.4; export MASTER_PORT=29500; export RANK=1; cd crypten-launcher-tmp-96ec6c0e-f087-11ec-b892-3fcd6aef0208 ; export PATH=/home/ezpcuser/anaconda3/envs/cryptgpu/bin:/usr/local/cuda-11.7/bin:/home/ezpcuser/anaconda3/envs/cryptgpu/bin:/home/ezpcuser/anaconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin;  CUDA_VISIBLE_DEVICES=0 ./launcher.py 
+Run command: export WORLD_SIZE=3; export RENDEZVOUS=env://; export MASTER_ADDR=10.11.0.4; export MASTER_PORT=29500; export RANK=2; cd crypten-launcher-tmp-96ec6c0e-f087-11ec-b892-3fcd6aef0208 ; export PATH=/home/ezpcuser/anaconda3/envs/cryptgpu/bin:/usr/local/cuda-11.7/bin:/home/ezpcuser/anaconda3/envs/cryptgpu/bin:/home/ezpcuser/anaconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin;  CUDA_VISIBLE_DEVICES=0 ./launcher.py 
+[10.11.0.5 STDOUT] INFO:root:==================
+[10.11.0.5 STDOUT] INFO:root:DistributedCommunicator with rank 1
+[10.11.0.5 STDOUT] INFO:root:==================
+[10.11.0.6 STDOUT] INFO:root:==================
+[10.11.0.6 STDOUT] INFO:root:DistributedCommunicator with rank 2
+[10.11.0.6 STDOUT] INFO:root:==================
+[10.11.0.4 STDOUT] INFO:root:==================
+[10.11.0.4 STDOUT] INFO:root:DistributedCommunicator with rank 0
+[10.11.0.4 STDOUT] INFO:root:==================
+[10.11.0.5 STDOUT] INFO:root:World size = 3
+[10.11.0.6 STDOUT] INFO:root:World size = 3
+[10.11.0.4 STDOUT] INFO:root:World size = 3
+[10.11.0.4 STDOUT] Training on tinyin dataset with alexnet network
+[10.11.0.5 STDOUT] /home/ezpcuser/anaconda3/envs/cryptgpu/lib/python3.8/site-packages/cryptgpu-0.1.0-py3.8.egg/crypten/nn/onnx_converter.py:148: UserWarning: The given NumPy array is not writeable, and PyTorch does not support non-writeable tensors. This means you can write to the underlying (supposedly non-writeable) NumPy array using the tensor. You may want to copy the array to protect its data or make it writeable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at  /home/ezpcuser/pytorch/torch/csrc/utils/tensor_numpy.cpp:135.)
+[10.11.0.6 STDOUT] /home/ezpcuser/anaconda3/envs/cryptgpu/lib/python3.8/site-packages/cryptgpu-0.1.0-py3.8.egg/crypten/nn/onnx_converter.py:148: UserWarning: The given NumPy array is not writeable, and PyTorch does not support non-writeable tensors. This means you can write to the underlying (supposedly non-writeable) NumPy array using the tensor. You may want to copy the array to protect its data or make it writeable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at  /home/ezpcuser/pytorch/torch/csrc/utils/tensor_numpy.cpp:135.)
+[10.11.0.4 STDOUT] /home/ezpcuser/anaconda3/envs/cryptgpu/lib/python3.8/site-packages/cryptgpu-0.1.0-py3.8.egg/crypten/nn/onnx_converter.py:148: UserWarning: The given NumPy array is not writeable, and PyTorch does not support non-writeable tensors. This means you can write to the underlying (supposedly non-writeable) NumPy array using the tensor. You may want to copy the array to protect its data or make it writeable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at  /home/ezpcuser/pytorch/torch/csrc/utils/tensor_numpy.cpp:135.)

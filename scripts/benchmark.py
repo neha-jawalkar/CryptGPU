@@ -200,6 +200,7 @@ def training_plaintext(model, input_size, batch_size, num_classes, device="cuda"
     bs = batch_size
 
     model = model.to(device)
+    print(model)
     model.train()
 
     criterion = nn.CrossEntropyLoss()
@@ -288,18 +289,18 @@ def train_all():
         model, input_size, num_classes = select_model(dataset, network)
         if comm.get().get_rank() == 0:
             print(f"Training on {dataset} dataset with {network} network")
-        training(model, input_size, bs, num_classes, device="cuda") # cuda or cpu
+        training(model, input_size, bs, num_classes, device="cpu") # cuda or cpu
 
 
 def inference_all():
     inference_config = [
-        ["mnist", "lenet"],
-        ["cifar10", "alexnet"],
-        ["cifar10", "vgg16"],
-        ["tinyin", "alexnet"],
-        ["tinyin", "vgg16"],
-        ["imagenet", "alexnet"],
-        ["imagenet", "vgg16"],
+        # ["mnist", "lenet"],
+        # ["cifar10", "alexnet"],
+        # ["cifar10", "vgg16"],
+        # ["tinyin", "alexnet"],
+        # ["tinyin", "vgg16"],
+        # ["imagenet", "alexnet"],
+        # ["imagenet", "vgg16"],
         ["imagenet", "resnet50"],
         ["imagenet", "resnet101"],
         ["imagenet", "resnet152"]
@@ -308,7 +309,7 @@ def inference_all():
         model, input_size, num_classes = select_model(dataset, network)
         if comm.get().get_rank() == 0:
             print(f"Running inference on {dataset} dataset with {network} network")
-        inference(model, input_size, device="cuda")
+        inference(model, input_size, device="cpu") # can be either cpu or cuda
 
 
 def train_all_plaintext():
@@ -328,13 +329,13 @@ def train_all_plaintext():
 
 def inference_all_plaintext():
     inference_config = [
-        ["mnist", "lenet"],
-        ["cifar10", "alexnet"],
-        ["cifar10", "vgg16"],
-        ["tinyin", "alexnet"],
-        ["tinyin", "vgg16"],
-        ["imagenet", "alexnet"],
-        ["imagenet", "vgg16"],
+        # ["mnist", "lenet"],
+        # ["cifar10", "alexnet"],
+        # ["cifar10", "vgg16"],
+        # ["tinyin", "alexnet"],
+        # ["tinyin", "vgg16"],
+        # ["imagenet", "alexnet"],
+        # ["imagenet", "vgg16"],
         ["imagenet", "resnet50"],
         ["imagenet", "resnet101"],
         ["imagenet", "resnet152"]
@@ -343,7 +344,7 @@ def inference_all_plaintext():
         model, input_size, num_classes = select_model(dataset, network)
         if comm.get().get_rank() == 0:
             print(f"Running inference on {dataset} dataset with {network} network")
-        inference_plaintext(model, input_size, device="cuda")
+        inference_plaintext(model, input_size, device="cpu") # can be cpu or cuda
 
 
 def batch_inference():
@@ -357,7 +358,7 @@ def batch_inference():
 
     for dataset, network, bs in inference_config:
         model, input_size, num_classes = select_model(dataset, network)
-        inference(model, input_size, bs, device='cuda')
+        inference(model, input_size, bs, device='cpu') # can be cpu or cuda
 
 def measure_comm_time():
     # bytes_list = 

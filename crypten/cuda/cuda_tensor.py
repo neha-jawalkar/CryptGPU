@@ -60,7 +60,6 @@ class CUDALongTensor(object):
             data (Tensor, array_like, or CUDALongTensor): Initial data for CUDALongTensor.
             device (torch.device): The desired device of CUDALongTensor. Must be a cuda device.
         """
-
         device = "cuda" if device is None else device
         assert device.startswith(
             "cuda"
@@ -152,6 +151,7 @@ class CUDALongTensor(object):
 
     @staticmethod
     def __encode_as_fp64(x):
+        # print("boooooooooooooooooooooooooo")
         """Converts a CUDALongTensor `x` to an encoding of
         torch.cuda.DoubleTensor that represent the same data.
         """

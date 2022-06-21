@@ -131,7 +131,7 @@ def timer_relu(func):
         comm_bytes = (comm_bytes_end - comm_bytes_start)
         comm.get().comm_bytes_relu += comm_bytes
 
-        pprint(f"relu {func.__name__}", comm_time, comm_bytes, comm_rounds)
+        # pprint(f"relu {func.__name__}", comm_time, comm_bytes, comm_rounds)
         
         return value
     return wrapper_timer
