@@ -206,11 +206,17 @@ class FromOnnx:
         # between complex names and ONNX arguments
         parameters = OrderedDict()
         orig_parameter_names = []
-
+        
+        linear_parameter_names = ["weight", "bias"]
+        
         # add in all the parameters for the current module
         for i, name in enumerate(node_input_names):
             if name in self.all_parameters and name not in input_names:
                 key = FromOnnx._get_parameter_name(name)
+                if node.op_type in ["Conv", "Gemm"]:
+                    key = linear_parameter_names.pop(0)
+                else:
+                    key = FromOnnx._get_parameter_name(name)
                 # the following is necessary because tf2onnx names multiple parameters
                 # identically if they have the same value
                 # only modify if we already have the key in parameters
