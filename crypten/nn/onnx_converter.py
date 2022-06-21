@@ -214,9 +214,9 @@ class FromOnnx:
             if name in self.all_parameters and name not in input_names:
                 # key = FromOnnx._get_parameter_name(name)
                 if node.op_type in ["Conv", "Gemm"]:
-                     key = linear_parameter_names.pop(0)
-                 else:
-                     key = FromOnnx._get_parameter_name(name)
+                    key = linear_parameter_names.pop(0)
+                else:
+                    key = FromOnnx._get_parameter_name(name)
                 # the following is necessary because tf2onnx names multiple parameters
                 # identically if they have the same value
                 # only modify if we already have the key in parameters
